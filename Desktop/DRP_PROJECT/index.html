@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chakshu V1 | Advanced Command</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --saffron: #FF9933;
+            --white: #FFFFFF;
+            --green: #138808;
+            --deep-green: #0b3d05;
+            --bg-gray: #f0f2f5;
+            --glow-saffron: rgba(255, 153, 51, 0.4);
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0; padding: 0;
+            font-family: 'Rajdhani', sans-serif;
+            background: var(--bg-gray);
+            display: flex;
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+        }
+
+        /* --- SIDEBAR --- */
+        .sidebar {
+            width: 260px;
+            flex-shrink: 0;
+            background: var(--deep-green);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            transition: width 0.3s ease;
+            z-index: 100;
+            border-right: 2px solid var(--saffron);
+        }
+
+        .sidebar.collapsed { width: 70px; }
+
+        .sidebar-header {
+            height: 70px;
+            padding: 0 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(0,0,0,0.2);
+            border-bottom: 2px solid var(--saffron);
+        }
+
+        .menu-list { flex: 1; padding: 20px 0; }
+        
+        /* HOVER: Sidebar Menu Items */
+        .menu-item {
+            padding: 15px 25px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-left: 4px solid transparent;
+            white-space: nowrap;
+        }
+
+        .menu-item:hover {
+            background: rgba(255, 153, 51, 0.15);
+            border-left-color: var(--saffron);
+            color: var(--saffron);
+            padding-left: 30px; /* Slight push effect */
+        }
+
+        .menu-item.active {
+            background: rgba(255, 153, 51, 0.1);
+            border-left-color: var(--saffron);
+            color: var(--saffron);
+        }
+
+        /* --- CONTENT WRAPPER --- */
+        .wrapper {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+        }
+
+        .top-bar {
+            height: 70px;
+            background: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 30px;
+            border-bottom: 1px solid #ddd;
+            flex-shrink: 0;
+        }
+
+        /* HOVER: User Profile */
+        .user-profile {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            padding: 5px 10px;
+            border-radius: 8px;
+            transition: 0.2s;
+        }
+        .user-profile:hover { background: rgba(0,0,0,0.05); }
+
+        .avatar {
+            width: 40px; height: 40px;
+            background: var(--saffron);
+            color: white;
+            border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            font-family: 'Orbitron'; font-weight: bold;
+            box-shadow: 0 0 10px var(--glow-saffron);
+            transition: 0.3s;
+        }
+        .user-profile:hover .avatar {
+            transform: scale(1.1);
+            box-shadow: 0 0 20px var(--saffron);
+        }
+
+        /* --- SCROLLABLE AREA --- */
+        .scroll-container {
+            flex-grow: 1;
+            padding: 30px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        /* --- VIDEO SECTION --- */
+        .video-card {
+            background: #000;
+            height: 450px;
+            border-radius: 15px;
+            flex-shrink: 0;
+            position: relative;
+            display: flex;
+            align-items: center; justify-content: center;
+            border: 4px solid white;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        /* Visual scanning effect on video */
+        .video-card::after {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 2px;
+            background: var(--saffron);
+            opacity: 0.3;
+            animation: scan 4s linear infinite;
+        }
+        @keyframes scan { 0% { top: 0; } 100% { top: 100%; } }
+
+        /* --- TELEMETRY GRID --- */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        /* HOVER: Stat Cards */
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            border-top: 4px solid var(--green);
+            transition: all 0.3s ease;
+        }
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 20px rgba(0,0,0,0.1);
+            border-top-color: var(--saffron);
+        }
+
+        .stat-card h4 { margin: 0; font-size: 0.8rem; color: #888; text-transform: uppercase; }
+        .stat-card p { margin: 10px 0 0; font-size: 1.5rem; font-weight: 700; color: #333; }
+
+        /* --- TABLE SECTION --- */
+        .table-section {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+
+        table { width: 100%; border-collapse: separate; border-spacing: 0 8px; margin-top: 15px; }
+        th { text-align: left; padding: 12px; color: #666; font-size: 0.85rem; border-bottom: 2px solid #eee; }
+        
+        /* HOVER: Table Rows */
+        tr.mission-row {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        tr.mission-row td {
+            padding: 15px 12px;
+            background: #fafafa;
+            border-top: 1px solid transparent;
+            border-bottom: 1px solid transparent;
+        }
+
+        tr.mission-row td:first-child { border-left: 1px solid transparent; border-radius: 10px 0 0 10px; }
+        tr.mission-row td:last-child { border-right: 1px solid transparent; border-radius: 0 10px 10px 0; }
+
+        tr.mission-row:hover td {
+            background: white;
+            border-color: var(--saffron);
+            color: var(--deep-green);
+        }
+
+        tr.mission-row:hover {
+            transform: scale(1.01);
+            box-shadow: 0 5px 15px var(--glow-saffron);
+        }
+
+        /* Status Badges */
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+        tr.mission-row:hover .status-badge {
+            box-shadow: 0 0 8px currentColor;
+        }
+
+        /* Dropdown Fix */
+        .dropdown {
+            position: absolute;
+            top: 55px; right: 0;
+            width: 200px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            display: none;
+            z-index: 200;
+            border: 1px solid #eee;
+            overflow: hidden;
+        }
+        .dropdown.show { display: block; animation: fadeIn 0.2s ease; }
+        .dropdown-item { padding: 12px 20px; cursor: pointer; transition: 0.2s; }
+        .dropdown-item:hover { background: var(--bg-gray); color: var(--green); padding-left: 25px; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .hide { transition: opacity 0.2s; }
+        .sidebar.collapsed .hide { display: none; }
+
+    </style>
+</head>
+<body>
+
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <span class="hide" style="font-family: 'Orbitron'; color: var(--saffron);">Chakshu V1</span>
+            <span onclick="toggleSidebar()" style="cursor:pointer; font-size: 1.5rem;">☰</span>
+        </div>
+        <div class="menu-list">
+            <div class="menu-item active"><span>📷</span> <span class="hide">Live Camera</span></div>
+            <div class="menu-item"><span>📍</span> <span class="hide">Current Position</span></div>
+            <div class="menu-item"><span>📜</span> <span class="hide">Terrain Records</span></div>
+            <div class="menu-item"><span>⚙️</span> <span class="hide">Tank Config</span></div>
+            <div class="menu-item"><span>📡</span> <span class="hide">Other Devices</span></div>
+        </div>
+    </div>
+
+    <div class="wrapper">
+        <header class="top-bar">
+            <div style="font-weight: bold; font-family: 'Orbitron'; font-size: 1.1rem; color: var(--green);">
+                COMMAND CONSOLE
+            </div>
+            <div class="user-profile" onclick="toggleDropdown()">
+                <div style="text-align: right;" class="hide">
+                    <div style="font-weight: 700; font-size: 0.9rem;">CDR. ABHISHEK</div>
+                    <div style="font-size: 0.7rem; color: var(--green);">REZANG LA, LADDAKH</div>
+                </div>
+                <div class="avatar">A</div>
+                <div class="dropdown" id="userDrop">
+                    <div class="dropdown-item">Strategic Profile</div>
+                    <div class="dropdown-item">Mission Settings</div>
+                    <div class="dropdown-item" style="color: red; border-top: 1px solid #eee;">Secure Logout</div>
+                </div>
+            </div>
+        </header>
+
+        <main class="scroll-container">
+            
+            <section class="video-card">
+                <div style="text-align: center; z-index: 1;">
+                    <h1 style="color: white; font-family: 'Orbitron'; letter-spacing: 4px;">LIVE FEED</h1>
+                    <p style="color: var(--saffron); font-family: monospace;">NODE: REZANG LA SECURE UPLINK</p>
+                </div>
+                <div style="position: absolute; bottom: 20px; left: 20px; color: var(--saffron); font-family: monospace; z-index: 1;">
+                    COORD: 17.6897° N | 83.2191° E
+                </div>
+            </section>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h4>Speed</h4>
+                    <p>4.2 km/h</p>
+                </div>
+                <div class="stat-card" style="border-top-color: var(--saffron);">
+                    <h4>Battery</h4>
+                    <p>88%</p>
+                </div>
+                <div class="stat-card">
+                    <h4>Internal Temp</h4>
+                    <p>32° C</p>
+                </div>
+                <div class="stat-card" style="border-top-color: var(--saffron);">
+                    <h4>Signal</h4>
+                    <p>-42 dBm</p>
+                </div>
+            </div>
+
+            <section class="table-section">
+                <h3 style="margin-top: 0; font-family: 'Orbitron'; font-size: 1rem; color: var(--deep-green);">RECENT TERRAIN LOGS</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Mission ID</th>
+                            <th>Date & Time</th>
+                            <th>Terrain Type</th>
+                            <th>Distance</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="mission-row">
+                            <td style="font-weight: bold; color: var(--saffron);">#MS-902</td>
+                            <td>27 Dec 2025, 14:30</td>
+                            <td>Rocky / Coastal</td>
+                            <td>1.2 km</td>
+                            <td><span class="status-badge" style="background:#c8e6c9; color:#2e7d32;">SUCCESS</span></td>
+                        </tr>
+                        <tr class="mission-row">
+                            <td style="font-weight: bold; color: var(--saffron);">#MS-881</td>
+                            <td>26 Dec 2025, 10:15</td>
+                            <td>Urban Sand</td>
+                            <td>0.8 km</td>
+                            <td><span class="status-badge" style="background:#c8e6c9; color:#2e7d32;">SUCCESS</span></td>
+                        </tr>
+                        <tr class="mission-row">
+                            <td style="font-weight: bold; color: var(--saffron);">#MS-850</td>
+                            <td>25 Dec 2025, 18:00</td>
+                            <td>Grassland</td>
+                            <td>3.5 km</td>
+                            <td><span class="status-badge" style="background:#e0e0e0; color:#616161;">ARCHIVED</span></td>
+                        </tr>
+                        <tr class="mission-row">
+                            <td style="font-weight: bold; color: var(--saffron);">#MS-842</td>
+                            <td>24 Dec 2025, 09:00</td>
+                            <td>Muddy Track</td>
+                            <td>0.5 km</td>
+                            <td><span class="status-badge" style="background:#ffecb3; color:#ffa000;">PENDING</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+        </main>
+    </div>
+
+    <script>
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('collapsed');
+        }
+        function toggleDropdown() {
+            document.getElementById('userDrop').classList.toggle('show');
+        }
+        // Close dropdown when clicking outside
+        window.onclick = function(e) {
+            if (!e.target.closest('.user-profile')) {
+                const drop = document.getElementById('userDrop');
+                if(drop.classList.contains('show')) drop.classList.remove('show');
+            }
+        }
+    </script>
+</body>
+</html>
